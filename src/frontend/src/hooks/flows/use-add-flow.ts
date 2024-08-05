@@ -13,6 +13,7 @@ import {
   processFlows,
   updateGroupRecursion,
 } from "@/utils/reactflowUtils";
+import useDeleteFlow from "./use-delete-flow";
 
 const useAddFlow = () => {
   const unavaliableFields = useGlobalVariablesStore(
@@ -23,9 +24,7 @@ const useAddFlow = () => {
   );
   const flows = useFlowsManagerStore((state) => state.flows);
   const setFlows = useFlowsManagerStore((state) => state.setFlows);
-  const deleteComponent = useFlowsManagerStore(
-    (state) => state.deleteComponent,
-  );
+  const deleteFlow = useDeleteFlow();
   const setIsLoading = useFlowsManagerStore((state) => state.setIsLoading);
 
   const { mutate: saveFlow } = usePostSaveFlow();
@@ -53,8 +52,11 @@ const useAddFlow = () => {
       const folder_id = useFolderStore.getState().folderUrl;
       const my_collection_id = useFolderStore.getState().myCollectionId;
 
-      if (override) {
-        await deleteComponent(flow!.name);
+      if (override && flow) {
+        const flowId = flows.find((f) => f.name === flow.name);
+        if (flowId) {
+          await deleteFlow({ id: flowId.id });
+        }
       }
       const newFlow = createNewFlow(
         flowData!,
